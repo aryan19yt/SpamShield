@@ -4,20 +4,11 @@ import pickle
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem.porter import PorterStemmer
-
-# -------------------------
-# Page Config
-# -------------------------
-
 st.set_page_config(
     page_title="SpamShield AI",
     page_icon="🛡️",
     layout="centered"
 )
-
-# -------------------------
-# Custom CSS
-# -------------------------
 
 st.markdown("""
 <style>
@@ -59,39 +50,25 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# -------------------------
-# NLP Preprocessing
-# -------------------------
-
-ps = PorterStemmer()
+ps=PorterStemmer()
 
 def transform_text(text):
+    text=text.lower()
 
-    text = text.lower()
+    words=word_tokenize(text)
 
-    words = word_tokenize(text)
+    words=[word for word in words if word.isalnum()]
 
-    words = [word for word in words if word.isalnum()]
+    stop_words=set(stopwords.words('english'))
 
-    stop_words = set(stopwords.words('english'))
+    words=[word for word in words if word not in stop_words]
 
-    words = [word for word in words if word not in stop_words]
-
-    words = [ps.stem(word) for word in words]
+    words=[ps.stem(word) for word in words]
 
     return " ".join(words)
 
-# -------------------------
-# Load Model
-# -------------------------
-
-model = pickle.load(open("model.pkl", "rb"))
-vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
-
-# -------------------------
-# UI
-# -------------------------
-
+model=pickle.load(open("model.pkl", "rb"))
+vectorizer=pickle.load(open("vectorizer.pkl", "rb"))
 st.markdown(
     '<div class="title">🛡️ SpamShield AI</div>',
     unsafe_allow_html=True
@@ -102,31 +79,31 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-message = st.text_area(
+message=st.text_area(
     "✉️ Enter a message",
     height=180,
     placeholder="Type or paste a message here..."
 )
 
-col1, col2 = st.columns([1,1])
+col1, col2=st.columns([1,1])
 
 with col1:
-    predict_btn = st.button("🔍 Analyze Message")
+    predict_btn=st.button("🔍 Analyze Message")
 
 with col2:
-    clear_btn = st.button("🗑️ Clear")
+    clear_btn=st.button("🗑️ Clear")
 
 if predict_btn:
 
-    transformed = transform_text(message)
+    transformed=transform_text(message)
 
-    vector_input = vectorizer.transform([transformed])
+    vector_input=vectorizer.transform([transformed])
 
-    prediction = model.predict(vector_input)[0]
+    prediction=model.predict(vector_input)[0]
 
     st.divider()
 
-    if prediction == 1:
+    if prediction==1:
         st.markdown(
             '<div class="result-spam">🚨 SPAM DETECTED</div>',
             unsafe_allow_html=True
